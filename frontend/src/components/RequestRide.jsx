@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, lazy, Suspense } from 'react';
 import { ridesApi } from '../api.js';
-import MapPicker from './MapPicker.jsx';
+const MapPicker = lazy(() => import('./MapPicker.jsx'));
 
 const BASE_FARE = 2.50;
 const PRICE_PER_KM = 1.20;
@@ -148,7 +148,9 @@ export default function RequestRide({ user, onRideCreated }) {
         <p className="text-sm text-gray-500 mb-5">Busca tu origen y destino en el mapa</p>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
-          <MapPicker onChange={handleMapChange} />
+          <Suspense fallback={<div className="h-64 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 text-sm">Cargando mapa...</div>}>
+            <MapPicker onChange={handleMapChange} />
+          </Suspense>
 
           {errors.map && (
             <p className="text-red-500 text-sm flex items-center gap-1.5">

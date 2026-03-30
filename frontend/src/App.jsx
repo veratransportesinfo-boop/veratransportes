@@ -72,7 +72,7 @@ export default function App() {
                   d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Transportes App</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Vera Transportes</h1>
             <p className="text-gray-500 mt-1">Your ride, your way</p>
           </div>
 
@@ -128,7 +128,7 @@ export default function App() {
                   d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
               </svg>
             </div>
-            <span className="font-bold text-gray-900 text-lg">Transportes App</span>
+            <span className="font-bold text-gray-900 text-lg">Vera Transportes</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right hidden sm:block">

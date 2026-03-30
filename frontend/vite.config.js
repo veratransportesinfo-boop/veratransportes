@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon-192.svg', 'icon-512.svg', 'apple-touch-icon.svg'],
       manifest: {
-        name: 'Transportes App',
-        short_name: 'Transportes',
+        name: 'Vera Transportes',
+        short_name: 'Vera',
         description: 'Tu viaje, a tu manera',
         theme_color: '#4f46e5',
         background_color: '#ffffff',

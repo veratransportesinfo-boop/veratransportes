@@ -18,10 +18,56 @@ function StatusBadge({ status }) {
   );
 }
 
+const STATUS_STEPS = ['pending', 'accepted', 'in_progress', 'completed'];
+const STATUS_LABELS = { pending: 'Pendiente', accepted: 'Aceptado', in_progress: 'En camino', completed: 'Completado', cancelled: 'Cancelado' };
+
+function StatusTracker({ status }) {
+  if (status === 'cancelled') {
+    return (
+      <div className="flex items-center gap-1.5 text-xs text-red-600 font-semibold bg-red-50 rounded-lg px-3 py-1.5">
+        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+        </svg>
+        Cancelado
+      </div>
+    );
+  }
+  const currentIndex = STATUS_STEPS.indexOf(status);
+  return (
+    <div className="flex items-center gap-1 mt-3">
+      {STATUS_STEPS.map((step, i) => {
+        const done = i <= currentIndex;
+        const active = i === currentIndex;
+        return (
+          <div key={step} className="flex items-center flex-1 last:flex-none">
+            <div className="flex flex-col items-center">
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                done ? (active ? 'bg-indigo-600 text-white ring-2 ring-indigo-200' : 'bg-indigo-200 text-indigo-700') : 'bg-gray-100 text-gray-400'
+              }`}>
+                {i < currentIndex ? (
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                ) : i + 1}
+              </div>
+              <span className={`text-xs mt-0.5 whitespace-nowrap ${active ? 'text-indigo-600 font-semibold' : 'text-gray-400'}`}>
+                {STATUS_LABELS[step].split(' ')[0]}
+              </span>
+            </div>
+            {i < STATUS_STEPS.length - 1 && (
+              <div className={`flex-1 h-0.5 mx-1 mb-4 ${i < currentIndex ? 'bg-indigo-300' : 'bg-gray-200'}`} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function RideCard({ ride }) {
   const date = new Date(ride.createdAt);
-  const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  const formattedTime = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const formattedDate = date.toLocaleDateString('es-CL', { month: 'short', day: 'numeric', year: 'numeric' });
+  const formattedTime = date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow">
@@ -50,6 +96,8 @@ function RideCard({ ride }) {
         </div>
       </div>
 
+      <StatusTracker status={ride.status} />
+
       {ride.passengerName && (
         <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2">
           <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -70,7 +118,7 @@ function RideCard({ ride }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        {formattedDate} at {formattedTime}
+        {formattedDate} a las {formattedTime}
       </div>
     </div>
   );

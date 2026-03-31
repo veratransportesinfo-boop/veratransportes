@@ -54,11 +54,24 @@ async function searchPlaces(query) {
   }
 }
 
+function haversineKm(a, b) {
+  const R = 6371;
+  const dLat = (b.lat - a.lat) * Math.PI / 180;
+  const dLng = (b.lng - a.lng) * Math.PI / 180;
+  const x = Math.sin(dLat / 2) ** 2 +
+    Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return parseFloat((R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x))).toFixed(2));
+}
+
 async function getRoute(origin, destination) {
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const res = await fetch(
-      `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson`
+      `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson`,
+      { signal: controller.signal }
     );
+    clearTimeout(timeout);
     const data = await res.json();
     if (data.routes?.[0]) {
       const route = data.routes[0];
@@ -68,7 +81,13 @@ async function getRoute(origin, destination) {
       };
     }
   } catch {}
-  return null;
+  // Fallback: straight-line distance with 1.3x factor
+  const straight = haversineKm(origin, destination);
+  const distanceKm = parseFloat((straight * 1.3).toFixed(2));
+  return {
+    distanceKm,
+    coords: [[origin.lat, origin.lng], [destination.lat, destination.lng]]
+  };
 }
 
 function SearchBox({ label, placeholder, color, value, onSelect }) {

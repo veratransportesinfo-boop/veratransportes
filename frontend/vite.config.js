@@ -7,6 +7,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        skipWaiting: true,
+        clientsClaim: true
+      },
       includeAssets: ['icon-192.svg', 'icon-512.svg', 'apple-touch-icon.svg'],
       manifest: {
         name: 'Vera Transportes',

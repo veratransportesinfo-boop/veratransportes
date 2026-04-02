@@ -63,25 +63,8 @@ function haversineKm(a, b) {
   return parseFloat((R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x))).toFixed(2));
 }
 
-async function getRoute(origin, destination) {
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(
-      `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson`,
-      { signal: controller.signal }
-    );
-    clearTimeout(timeout);
-    const data = await res.json();
-    if (data.routes?.[0]) {
-      const route = data.routes[0];
-      return {
-        distanceKm: parseFloat((route.distance / 1000).toFixed(2)),
-        coords: route.geometry.coordinates.map(([lng, lat]) => [lat, lng])
-      };
-    }
-  } catch {}
-  // Fallback: straight-line distance with 1.3x factor
+function getRoute(origin, destination) {
+  // Distancia en línea recta con factor 1.3x para aproximar ruta real
   const straight = haversineKm(origin, destination);
   const distanceKm = parseFloat((straight * 1.3).toFixed(2));
   return {
@@ -180,7 +163,6 @@ export default function MapPicker({ onChange }) {
   const [destination, setDestination] = useState(null);
   const [routeCoords, setRouteCoords] = useState([]);
   const [distance, setDistance] = useState(null);
-  const [routeLoading, setRouteLoading] = useState(false);
 
   const handleOriginSelect = useCallback((place) => {
     setOrigin(place);
@@ -196,15 +178,10 @@ export default function MapPicker({ onChange }) {
 
   useEffect(() => {
     if (!origin || !destination) return;
-    setRouteLoading(true);
-    getRoute(origin, destination).then((route) => {
-      setRouteLoading(false);
-      if (route) {
-        setRouteCoords(route.coords);
-        setDistance(route.distanceKm);
-        onChange({ origin: origin.name, destination: destination.name, distance_km: route.distanceKm });
-      }
-    });
+    const route = getRoute(origin, destination);
+    setRouteCoords(route.coords);
+    setDistance(route.distanceKm);
+    onChange({ origin: origin.name, destination: destination.name, distance_km: route.distanceKm });
   }, [origin, destination, onChange]);
 
   return (
@@ -224,17 +201,7 @@ export default function MapPicker({ onChange }) {
         onSelect={handleDestinationSelect}
       />
 
-      {routeLoading && (
-        <div className="text-sm text-indigo-600 flex items-center gap-2">
-          <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-          Calculando ruta...
-        </div>
-      )}
-
-      {distance && (
+{distance && (
         <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2.5 flex items-center justify-between">
           <span className="text-sm text-indigo-700 font-medium">Distancia calculada</span>
           <span className="text-indigo-900 font-bold">{distance} km</span>
